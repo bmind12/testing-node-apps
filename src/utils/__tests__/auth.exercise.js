@@ -1,34 +1,30 @@
 // Testing Pure Functions
-
-// 💣 remove this todo test (it's only here so you don't get an error about missing tests)
-
-// 🐨 import the function that we're testing
+import cases from 'jest-in-case'
 import {isPasswordAllowed} from '../auth'
 
 describe('Password validation', () => {
-  const allowedPasswords = ['!aBc123']
-  const disallowedPasswords = [
-    'a2c!',
-    '123456!',
-    'ABCdef!',
-    'abc123!',
-    'ABC123!',
-    'ABCdef123',
-  ]
-
-  allowedPasswords.forEach((password) =>
-    test(`allows ${password}`, () => {
-      const isValid = isPasswordAllowed(password)
-
-      expect(isValid).toBeTruthy()
-    }),
+  cases(
+    'isPasswordAllowed: valid passwords',
+    (options) => {
+      expect(isPasswordAllowed(options.password)).toBeTruthy()
+    },
+    {
+      'valid password': {password: '!aBc123'},
+    },
   )
 
-  disallowedPasswords.forEach((password) =>
-    test(`disallows ${password}`, () => {
-      const isValid = isPasswordAllowed(password)
-
-      expect(isValid).toBeFalsy()
-    }),
+  cases(
+    'isPasswordAllowed: invalid passwords',
+    (options) => {
+      expect(isPasswordAllowed(options.password)).toBeFalsy()
+    },
+    {
+      'too short': {password: 'a2c!'},
+      'no alphabet characters': {password: '123456!'},
+      'no numbers': {password: 'ABCdef!'},
+      'no uppercase letters': {password: 'abc123!'},
+      'no lowercase letters': {password: 'ABC123!'},
+      'no non-alphanumeric characters': {password: 'ABCdef123'},
+    },
   )
 })
