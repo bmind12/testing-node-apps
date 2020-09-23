@@ -3,21 +3,22 @@ import errorMiddleware from '../error-middleware'
 
 describe('Error Middleware', () => {
   it('handles express-jwt unauthorized error', () => {
-    const error = new UnauthorizedError('some_error_code', {
-      message: 'Some message',
-    })
-    const nextMock = jest.fn(() => {})
-    const res = {json: jest.fn(() => res), status: jest.fn(() => res)}
+    const code = 'some_error_code'
+    const message = 'Some message'
+    const error = new UnauthorizedError(code, {message})
     const req = {}
+    const res = {json: jest.fn(() => res), status: jest.fn(() => res)}
+    const next = jest.fn()
 
-    errorMiddleware(error, req, res, nextMock)
+    errorMiddleware(error, req, res, next)
 
+    expect(next).not.toHaveBeenCalled()
     expect(res.status).toHaveBeenCalledTimes(1)
     expect(res.status).toHaveBeenCalledWith(401)
     expect(res.json).toHaveBeenCalledTimes(1)
     expect(res.json).toHaveBeenCalledWith({
-      code: 'some_error_code',
-      message: 'Some message',
+      code: error.code,
+      message: error.message,
     })
   })
 })
