@@ -48,6 +48,19 @@ describe('Error Middleware', () => {
     expect(res.status).not.toHaveBeenCalled()
     expect(res.json).not.toHaveBeenCalled()
   })
-})
 
-// 🐨 Write a test for the else case (responds with a 500)
+  it('handles an unknown error', () => {
+    const {error, req, res, next} = getTestObject()
+
+    errorMiddleware(error, req, res, next)
+
+    expect(next).not.toHaveBeenCalled()
+    expect(res.status).toHaveBeenCalledWith(500)
+    expect(res.status).toHaveBeenCalledTimes(1)
+    expect(res.json).toHaveBeenCalledWith({
+      message: error.message,
+      stack: error.stack,
+    })
+    expect(res.json).toHaveBeenCalledTimes(1)
+  })
+})
