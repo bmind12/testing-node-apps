@@ -1,30 +1,24 @@
 import {UnauthorizedError} from 'express-jwt'
 import errorMiddleware from '../error-middleware'
 
-function getTestObject(overrides = {}) {
-  const error = overrides.error || new Error('Error')
-  const req = {}
+function buildRes(overrides) {
   const res = {
     json: jest.fn(() => res),
     status: jest.fn(() => res),
+    ...overrides,
   }
-  const next = overrides.next || jest.fn()
 
-  return {
-    error,
-    req: overrides.req ? {...req, ...overrides.req} : req,
-    res: overrides.res ? {...res, ...overrides.res} : res,
-    next,
-  }
+  return res
 }
 
 describe('Error Middleware', () => {
   it('handles express-jwt unauthorized error', () => {
     const code = 'some_error_code'
     const message = 'Some message'
-    const {error, req, res, next} = getTestObject({
-      error: new UnauthorizedError(code, {message}),
-    })
+    const error = new UnauthorizedError(code, {message})
+    const req = {}
+    const next = jest.fn()
+    const res = buildRes()
 
     errorMiddleware(error, req, res, next)
 
@@ -39,7 +33,10 @@ describe('Error Middleware', () => {
   })
 
   it("doesn't send an error if it was already sent", () => {
-    const {error, req, res, next} = getTestObject({res: {headersSent: true}})
+    const error = new Error('Error')
+    const req = {}
+    const next = jest.fn()
+    const res = buildRes({headersSent: true})
 
     errorMiddleware(error, req, res, next)
 
@@ -50,7 +47,10 @@ describe('Error Middleware', () => {
   })
 
   it('handles an unknown error', () => {
-    const {error, req, res, next} = getTestObject()
+    const error = new Error('Error')
+    const req = {}
+    const next = jest.fn()
+    const res = buildRes()
 
     errorMiddleware(error, req, res, next)
 
