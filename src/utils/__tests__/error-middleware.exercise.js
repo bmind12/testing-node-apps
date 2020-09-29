@@ -1,23 +1,14 @@
 import {UnauthorizedError} from 'express-jwt'
 import errorMiddleware from '../error-middleware'
-
-function buildRes(overrides) {
-  const res = {
-    json: jest.fn(() => res),
-    status: jest.fn(() => res),
-    ...overrides,
-  }
-
-  return res
-}
+import {buildRes, buildReq, buildNext} from 'utils/generate'
 
 describe('Error Middleware', () => {
   it('handles express-jwt unauthorized error', () => {
     const code = 'some_error_code'
     const message = 'Some message'
     const error = new UnauthorizedError(code, {message})
-    const req = {}
-    const next = jest.fn()
+    const req = buildReq()
+    const next = buildNext()
     const res = buildRes()
 
     errorMiddleware(error, req, res, next)
@@ -34,8 +25,8 @@ describe('Error Middleware', () => {
 
   it("doesn't send an error if it was already sent", () => {
     const error = new Error('Error')
-    const req = {}
-    const next = jest.fn()
+    const req = buildReq()
+    const next = buildNext()
     const res = buildRes({headersSent: true})
 
     errorMiddleware(error, req, res, next)
@@ -48,8 +39,8 @@ describe('Error Middleware', () => {
 
   it('handles an unknown error', () => {
     const error = new Error('Error')
-    const req = {}
-    const next = jest.fn()
+    const req = buildReq()
+    const next = buildNext()
     const res = buildRes()
 
     errorMiddleware(error, req, res, next)
