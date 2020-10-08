@@ -98,12 +98,83 @@ test('setListItem returns req.listItem', async () => {
   expect(req.listItem).toEqual(listItem)
 })
 
-test('getListItems returns req.listItems', async () => {})
+test('getListItems returns req.listItems', async () => {
+  const listItems = [buildListItem()]
+  const books = [buildBook()]
+  const req = buildReq()
+  const res = buildRes()
 
-test('createListItem returns a 400 error if already item exists', async () => {})
+  listItemsDB.query.mockResolvedValueOnce(listItems)
+  booksDB.readManyById.mockResolvedValueOnce(books)
 
-test('createListItem returns listItem', async () => {})
+  await listItemsController.getListItems(req, res)
 
-test('updateListItem returns an updated listItem', async () => {})
+  expect(res.json).toHaveBeenCalledWith({listItems})
+})
 
-test('deleteListItem deletes listItem', async () => {})
+test('createListItem returns a 400 error if already item exists', async () => {
+  const req = buildReq()
+  const res = buildRes()
+
+  await listItemsController.createListItem(req, res)
+
+  expect(res.status).toHaveBeenCalledWith(400)
+  expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "message": "No bookId provided",
+      },
+    ]
+  `)
+})
+
+test('createListItem returns a 400 error if no bookId provided', async () => {
+  const book = buildBook()
+  const listItems = [buildListItem({bookId: book.id})]
+  const req = buildReq({body: {bookId: book.id}})
+  const res = buildRes()
+
+  listItemsDB.query.mockResolvedValueOnce(listItems)
+
+  await listItemsController.createListItem(req, res)
+
+  expect(res.status).toHaveBeenCalledWith(400)
+  expect(res.json.mock.calls[0][0].message).not.toBe('No bookId provided')
+})
+
+test('createListItem returns listItem', async () => {
+  const book = buildBook()
+  const listItem = buildListItem({bookId: book.id})
+  const req = buildReq({body: {bookId: book.id}})
+  const res = buildRes()
+
+  listItemsDB.query.mockResolvedValueOnce([])
+  listItemsDB.create.mockResolvedValueOnce(listItem)
+
+  await listItemsController.createListItem(req, res)
+
+  expect(res.json).toHaveBeenCalledWith({listItem})
+})
+
+test('updateListItem returns an updated listItem', async () => {
+  const book = buildBook()
+  const listItem = buildListItem({bookId: book.id})
+  const req = buildReq({listItem})
+  const res = buildRes()
+
+  listItemsDB.update.mockResolvedValueOnce(listItem)
+
+  await listItemsController.updateListItem(req, res)
+
+  expect(res.json).toHaveBeenCalledWith({listItem})
+})
+
+test('deleteListItem deletes listItem', async () => {
+  const listItem = buildListItem()
+  const req = buildReq({listItem})
+  const res = buildRes()
+
+  await listItemsController.deleteListItem(req, res)
+
+  expect(res.json).toHaveBeenCalledWith({success: true})
+})
