@@ -57,11 +57,13 @@ test('createListItem returns a 400 error if no bookId is provided', async () => 
 test('setListItem returns a 404 error if no listItem is provided', async () => {
   const req = buildReq()
   const res = buildRes()
+  const next = buildNext()
 
   await listItemsController.setListItem(req, res)
 
   expect(res.status).toHaveBeenCalledTimes(1)
   expect(res.status).toHaveBeenCalledWith(404)
+  expect(next).not.toHaveBeenCalled()
   expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -69,6 +71,7 @@ test('setListItem returns a 404 error if no listItem is provided', async () => {
       },
     ]
   `)
+  expect(res.json).toHaveBeenCalledTimes(1)
 })
 
 test('setListItem returns a 403 error if a user is not authorized', async () => {
