@@ -75,16 +75,31 @@ test('setListItem returns a 404 error if no listItem is provided', async () => {
 })
 
 test('setListItem returns a 403 error if a user is not authorized', async () => {
-  const listItem = buildListItem()
-  const req = buildReq({listItem, params: {listItem: {id: listItem.id}}})
+  const user = buildUser({id: 'FAKE_USER_ID'})
+  const listItem = buildListItem({
+    ownerId: 'SOMEONE_ELSE',
+    id: 'FAKE_LIST_ITEM_ID',
+  })
+  const req = buildReq({params: {id: listItem.id}, user})
   const res = buildRes()
+  const next = buildNext()
 
   listItemsDB.readById.mockResolvedValueOnce(listItem)
 
   await listItemsController.setListItem(req, res)
 
+  expect(listItemsDB.readById).toHaveBeenCalledWith(listItem.id)
   expect(res.status).toHaveBeenCalledWith(403)
   expect(res.status).toHaveBeenCalledTimes(1)
+  expect(res.json).toHaveBeenCalledTimes(1)
+  expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "message": "User with id FAKE_USER_ID is not authorized to access the list item FAKE_LIST_ITEM_ID",
+      },
+    ]
+  `)
+  expect(next).not.toHaveBeenCalled()
 })
 
 test('setListItem returns adds listItem to req', async () => {
