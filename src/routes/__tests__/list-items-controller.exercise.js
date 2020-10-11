@@ -140,7 +140,7 @@ test('getListItems returns req.listItems', async () => {
   expect(res.json).toHaveBeenCalledWith({listItems})
 })
 
-test('createListItem returns a 400 error if already item exists', async () => {
+test('createListItem returns a 400 error if no bookId provided', async () => {
   const req = buildReq()
   const res = buildRes()
 
@@ -156,9 +156,9 @@ test('createListItem returns a 400 error if already item exists', async () => {
   `)
 })
 
-test('createListItem returns a 400 error if no bookId provided', async () => {
-  const user = buildUser()
-  const book = buildBook({ownerId: user.id})
+test('createListItem returns a 400 error if item already exists', async () => {
+  const user = buildUser({id: 'FAKE_USER_ID'})
+  const book = buildBook({ownerId: user.id, id: 'FAKE_BOOK_ID'})
   const listItems = [buildListItem({bookId: book.id})]
   const req = buildReq({body: {bookId: book.id}, user})
   const res = buildRes()
@@ -173,7 +173,13 @@ test('createListItem returns a 400 error if no bookId provided', async () => {
     bookId: book.id,
   })
   expect(res.status).toHaveBeenCalledWith(400)
-  expect(res.json.mock.calls[0][0].message).not.toBe('No bookId provided')
+  expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "message": "User FAKE_USER_ID already has a list item for the book with the ID FAKE_BOOK_ID",
+      },
+    ]
+  `)
 })
 
 test('createListItem returns listItem', async () => {
