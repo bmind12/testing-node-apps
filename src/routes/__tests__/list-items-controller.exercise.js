@@ -178,13 +178,14 @@ test('createListItem returns a 400 error if no bookId provided', async () => {
 
 test('createListItem returns listItem', async () => {
   const user = buildUser()
-  const book = buildBook({ownerId: user.id})
-  const listItem = buildListItem({bookId: book.id})
+  const book = buildBook()
+  const listItem = buildListItem({ownerId: user.id, bookId: book.id})
   const req = buildReq({body: {bookId: book.id}, user})
   const res = buildRes()
 
   listItemsDB.query.mockResolvedValueOnce([])
   listItemsDB.create.mockResolvedValueOnce(listItem)
+  booksDB.readById.mockResolvedValueOnce(book)
 
   await listItemsController.createListItem(req, res)
 
@@ -198,7 +199,7 @@ test('createListItem returns listItem', async () => {
     ownerId: user.id,
     bookId: book.id,
   })
-  expect(res.json).toHaveBeenCalledWith({listItem})
+  expect(res.json).toHaveBeenCalledWith({listItem: {...listItem, book}})
 })
 
 test('updateListItem returns an updated listItem', async () => {
