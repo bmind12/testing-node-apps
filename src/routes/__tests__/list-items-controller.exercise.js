@@ -159,11 +159,11 @@ test('createListItem returns a 400 error if no bookId provided', async () => {
 test('createListItem returns a 400 error if item already exists', async () => {
   const user = buildUser({id: 'FAKE_USER_ID'})
   const book = buildBook({ownerId: user.id, id: 'FAKE_BOOK_ID'})
-  const listItems = [buildListItem({bookId: book.id})]
+  const existingListItem = [buildListItem({ownerId: user.id, bookId: book.id})]
   const req = buildReq({body: {bookId: book.id}, user})
   const res = buildRes()
 
-  listItemsDB.query.mockResolvedValueOnce(listItems)
+  listItemsDB.query.mockResolvedValueOnce(existingListItem)
 
   await listItemsController.createListItem(req, res)
 
@@ -173,6 +173,8 @@ test('createListItem returns a 400 error if item already exists', async () => {
     bookId: book.id,
   })
   expect(res.status).toHaveBeenCalledWith(400)
+  expect(res.status).toHaveBeenCalledTimes(1)
+  expect(res.json).toHaveBeenCalledTimes(1)
   expect(res.json.mock.calls[0]).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -210,17 +212,23 @@ test('createListItem returns listItem', async () => {
 
 test('updateListItem returns an updated listItem', async () => {
   const book = buildBook()
-  const listItem = buildListItem({bookId: book.id})
-  const req = buildReq({listItem})
+  const user = buildUser()
+  const listItem = buildListItem({bookId: book.id, rating: 2, book})
+  const req = buildReq({listItem, body: {rating: 4}, user})
   const res = buildRes()
 
-  listItemsDB.update.mockResolvedValueOnce(listItem)
+  listItemsDB.update.mockResolvedValueOnce({...listItem, rating: 4})
+  booksDB.readById.mockResolvedValueOnce(book)
 
   await listItemsController.updateListItem(req, res)
 
   expect(listItemsDB.update).toHaveBeenCalledTimes(1)
   expect(listItemsDB.update).toHaveBeenCalledWith(listItem.id, req.body)
-  expect(res.json).toHaveBeenCalledWith({listItem})
+  expect(booksDB.readById).toHaveBeenCalledTimes(1)
+  expect(booksDB.readById).toHaveBeenCalledWith(listItem.bookId)
+  expect(res.json).toHaveBeenCalledWith({
+    listItem: {...listItem, rating: 4},
+  })
 })
 
 test('deleteListItem deletes listItem', async () => {
