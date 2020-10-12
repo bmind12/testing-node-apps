@@ -238,5 +238,8 @@ test('deleteListItem deletes listItem', async () => {
 
   await listItemsController.deleteListItem(req, res)
 
+  expect(listItemsDB.remove).toHaveBeenCalledTimes(1)
+  expect(listItemsDB.remove).toHaveBeenCalledWith(listItem.id)
   expect(res.json).toHaveBeenCalledWith({success: true})
+  expect(res.json).toHaveBeenCalledTimes(1)
 })
