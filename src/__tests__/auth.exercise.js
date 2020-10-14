@@ -1,27 +1,32 @@
-// Testing Authentication API Routes
+import axios from 'axios'
+import {resetDb} from 'utils/db-utils'
+import * as generate from 'utils/generate'
+import startServer from '../start'
 
-// 🐨 import the things you'll need
-// 💰 here, I'll just give them to you. You're welcome
-// import axios from 'axios'
-// import {resetDb} from 'utils/db-utils'
-// import * as generate from 'utils/generate'
-// import startServer from '../start'
+let server
+const FAKE_USERNAME = 'FAKE_USERNAME'
 
-// 🐨 you'll need to start/stop the server using beforeAll and afterAll
-// 💰 This might be helpful: server = await startServer({port: 8000})
+beforeAll(async () => {
+  server = await startServer({port: 8000})
+})
 
-// 🐨 beforeEach test in this file we want to reset the database
+afterAll(async () => {
+  await server.close()
+})
+  
+  beforeEach(async () => {
+    await resetDb()
+})
 
 test('auth flow', async () => {
-  // 🐨 get a username and password from generate.loginForm()
-  //
-  // register
-  // 🐨 use axios.post to post the username and password to the registration endpoint
-  // 💰 http://localhost:8000/api/auth/register
-  //
-  // 🐨 assert that the result you get back is correct
-  // 💰 it'll have an id and a token that will be random every time.
-  // You can either only check that `result.data.user.username` is correct, or
+  const {username, password} = generate.loginForm({username: FAKE_USERNAME})
+
+  const result = await axios.post('http://localhost:8000/api/auth/register', {
+    username,
+    password,
+  })
+  
+  expect(result.data.user.username).toBe(FAKE_USERNAME)
   // for a little extra credit 💯 you can try using `expect.any(String)`
   // (an asymmetric matcher) with toEqual.
   // 📜 https://jestjs.io/docs/en/expect#expectanyconstructor
