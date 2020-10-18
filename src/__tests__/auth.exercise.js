@@ -26,7 +26,11 @@ test('auth flow', async () => {
     },
   )
 
-  expect(registerResult.data.user.username).toEqual(expect.any(String))
+  expect(registerResult.data.user).toEqual({
+    token: expect.any(String),
+    id: expect.any(String),
+    username,
+  })
 
   const loginResult = await axios.post('http://localhost:8000/api/auth/login', {
     username,
