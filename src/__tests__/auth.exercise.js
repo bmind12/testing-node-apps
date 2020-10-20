@@ -2,6 +2,7 @@ import axios from 'axios'
 import {resetDb} from 'utils/db-utils'
 import * as generate from 'utils/generate'
 import startServer from '../start'
+import {getData, handleRequestFailure} from '../../test/utils/async'
 
 let server
 
@@ -18,31 +19,36 @@ afterAll(() => server.close())
 const BASE_URL = 'http://localhost:8000/api'
 const api = axios.create({baseURL: BASE_URL})
 
+api.interceptors.response.use(getData, handleRequestFailure)
+
 test('auth flow', async () => {
   const {username, password} = generate.loginForm()
 
-  const registerResult = await api.post('/auth/register', {
+  const registerData = await api.post('/auth/register', {
     username,
     password,
   })
 
-  expect(registerResult.data.user).toEqual({
+  expect(registerData.user).toEqual({
     token: expect.any(String),
     id: expect.any(String),
     username,
   })
 
-  const loginResult = await api.post('/auth/login', {
+  const loginData = await api.post('/auth/login', {
     username,
     password,
   })
 
-  expect(loginResult.data).toEqual(registerResult.data)
+  expect(loginData).toEqual(registerData)
 
-  const token = loginResult.data.user.token
-  const authResult = await api.get('/auth/me', {
-    headers: {Authorization: `Bearer ${token}`},
+  const token = loginData.user.token
+  const authData = await api.get('/auth/me', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      fake: 'erase',
+    },
   })
 
-  expect(authResult.data).toEqual(registerResult.data)
+  expect(authData).toEqual(registerData)
 })
