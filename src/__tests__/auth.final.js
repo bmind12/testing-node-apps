@@ -8,7 +8,7 @@ import startServer from '../start'
 let server
 
 beforeAll(async () => {
-  server = await startServer({port: 8000})
+  server = await startServer({port: process.env.PORT})
 })
 
 afterAll(() => server.close())
