@@ -68,3 +68,43 @@ test('user name must be unique', async () => {
   expect(result.status).toBe(400)
   expect(result.data.message).toMatchInlineSnapshot(`"username taken"`)
 })
+
+test('username must be provided to register', async () => {
+  const error = await api.post('/auth/register').catch(resolve)
+
+  expect(error.status).toBe(400)
+  expect(error.message).toMatchInlineSnapshot(
+    `"400: {\\"message\\":\\"username can't be blank\\"}"`,
+  )
+})
+
+test('password must be provided to register', async () => {
+  const error = await api
+    .post('/auth/register', {username: generate.username()})
+    .catch(resolve)
+
+  expect(error.status).toBe(400)
+  expect(error.message).toMatchInlineSnapshot(
+    `"400: {\\"message\\":\\"password can't be blank\\"}"`,
+  )
+})
+
+test('username must be provided to login', async () => {
+  const error = await api.post('/auth/login').catch(resolve)
+
+  expect(error.status).toBe(400)
+  expect(error.message).toMatchInlineSnapshot(
+    `"400: {\\"message\\":\\"username can't be blank\\"}"`,
+  )
+})
+
+test('password must be provided to login', async () => {
+  const error = await api
+    .post('/auth/login', {username: generate.username()})
+    .catch(resolve)
+
+  expect(error.status).toBe(400)
+  expect(error.message).toMatchInlineSnapshot(
+    `"400: {\\"message\\":\\"password can't be blank\\"}"`,
+  )
+})
