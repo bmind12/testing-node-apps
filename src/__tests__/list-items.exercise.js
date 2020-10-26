@@ -6,6 +6,7 @@ import {getData, handleRequestFailure, resolve} from 'utils/async'
 import * as generate from 'utils/generate'
 import * as booksDB from '../db/books'
 import startServer from '../start'
+import {create} from 'lodash'
 
 let baseURL, server
 
@@ -40,14 +41,12 @@ test('listItem CRUD', async () => {
     book,
   })
 
-  // const listItemId = createData.listItem.id
-  // const listItemIdUrl = `list-items/${listItemId}`
+  const listItemId = createData.listItem.id
+  const listItemIdUrl = `list-items/${listItemId}`
+  const data = await authAPI.get(listItemIdUrl)
 
-  // READ
-  // 🐨 make a GET to the `listItemIdUrl`
-  // 🐨 assert that this returns the same thing you got when you created the list item
+  expect(data).toEqual(createData)
 
-  // UPDATE
   // 🐨 make a PUT request to the `listItemIdUrl` with some updates
   // 💰 const updates = {notes: generate.notes()}
   // 🐨 assert that this returns the right stuff (should be the same as the READ except with the updated notes)
