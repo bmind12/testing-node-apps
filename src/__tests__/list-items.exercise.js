@@ -6,7 +6,6 @@ import {getData, handleRequestFailure, resolve} from 'utils/async'
 import * as generate from 'utils/generate'
 import * as booksDB from '../db/books'
 import startServer from '../start'
-import {create} from 'lodash'
 
 let baseURL, server
 
@@ -52,15 +51,14 @@ test('listItem CRUD', async () => {
 
   expect(updateData.listItem).toMatchObject({...readData.listItem, ...updates})
 
-  // DELETE
-  // 🐨 make a DELETE request to the `listItemIdUrl`
-  // 🐨 assert that this returns the right stuff (💰 {success: true})
+  const deleteData = await authAPI.delete(listItemIdUrl)
 
-  // 🐨 try to make a GET request to the `listItemIdUrl` again.
-  // 💰 this promise should reject. You can do a try/catch if you want, or you
-  // can use the `resolve` utility from utils/async:
-  // 💰 const error = await authAPI.get(listItemIdUrl).catch(resolve)
-  // 🐨 assert that the status is 404 and the error.data is correct
+  expect(deleteData).toEqual({success: true})
+
+  const readDeletedError = await authAPI.get(listItemIdUrl).catch(resolve)
+
+  expect(readDeletedError.status).toBe(404)
+  expect(readDeletedError.data).toEqual({
+    message: `No list item was found with the id of ${listItemId}`,
+  })
 })
-
-/* eslint no-unused-vars:0 */
