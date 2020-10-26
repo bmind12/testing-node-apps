@@ -34,9 +34,11 @@ test('listItem CRUD', async () => {
 
   const createData = await authAPI.post('/list-items', {bookId: book.id})
 
-  expect(createData.listItem.ownerId).toBe(testUser.id)
-  expect(createData.listItem.bookId).toBe(book.id)
-  expect(createData.listItem.book).toMatchObject(book)
+  expect(createData.listItem).toMatchObject({
+    ownerId: testUser.id,
+    bookId: book.id,
+    book,
+  })
 
   // const listItemId = createData.listItem.id
   // const listItemIdUrl = `list-items/${listItemId}`
