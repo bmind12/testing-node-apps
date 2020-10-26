@@ -43,14 +43,14 @@ test('listItem CRUD', async () => {
 
   const listItemId = createData.listItem.id
   const listItemIdUrl = `list-items/${listItemId}`
-  const data = await authAPI.get(listItemIdUrl)
+  const readData = await authAPI.get(listItemIdUrl)
 
-  expect(data).toEqual(createData)
+  expect(readData.listItem).toEqual(createData.listItem)
 
   const updates = {notes: generate.notes()}
   const updateData = await authAPI.put(listItemIdUrl, updates)
 
-  expect(updateData).toMatchObject({listItem: {...data.listItem, ...updates}})
+  expect(updateData.listItem).toMatchObject({...readData.listItem, ...updates})
 
   // DELETE
   // 🐨 make a DELETE request to the `listItemIdUrl`
