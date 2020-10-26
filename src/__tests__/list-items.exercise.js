@@ -47,9 +47,10 @@ test('listItem CRUD', async () => {
 
   expect(data).toEqual(createData)
 
-  // 🐨 make a PUT request to the `listItemIdUrl` with some updates
-  // 💰 const updates = {notes: generate.notes()}
-  // 🐨 assert that this returns the right stuff (should be the same as the READ except with the updated notes)
+  const updates = {notes: generate.notes()}
+  const updateData = await authAPI.put(listItemIdUrl, updates)
+
+  expect(updateData).toMatchObject({listItem: {...data.listItem, ...updates}})
 
   // DELETE
   // 🐨 make a DELETE request to the `listItemIdUrl`
