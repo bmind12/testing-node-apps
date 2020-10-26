@@ -58,7 +58,7 @@ test('listItem CRUD', async () => {
   const readDeletedError = await authAPI.get(listItemIdUrl).catch(resolve)
 
   expect(readDeletedError.status).toBe(404)
-  expect(readDeletedError.data).toEqual({
-    message: `No list item was found with the id of ${listItemId}`,
-  })
+  expect(
+    readDeletedError.data.message.replace(listItemId, 'FAKE_ID'),
+  ).toMatchInlineSnapshot(`"No list item was found with the id of FAKE_ID"`)
 })
